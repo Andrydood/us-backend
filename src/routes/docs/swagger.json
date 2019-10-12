@@ -1,0 +1,13 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+  },
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {},
+  "definitions": {}
+}
