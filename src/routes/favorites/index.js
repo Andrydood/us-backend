@@ -10,6 +10,6 @@ const router = express.Router();
 router.use(requireAuthentication);
 router.post('/', addFavorite);
 router.get('/', getFavorites);
-router.post('/remove', removeFavorite);
+router.delete('/:projectId', removeFavorite);
 
 module.exports = router;
