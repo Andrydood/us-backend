@@ -1,10 +1,10 @@
-const { deleteFavoriteSchema } = require('../../lib/joiSchemas');
+const { removeFavoriteSchema } = require('../../lib/joiSchemas');
 
-const deleteFavorite = async (req, res) => {
+const removeFavorite = async (req, res) => {
   const { projectId } = req.body;
   const favoriteData = { projectId };
   try {
-    await deleteFavoriteSchema.validateAsync(favoriteData);
+    await removeFavoriteSchema.validateAsync(favoriteData);
     const { username } = req.auth;
     const pgResponse = await req.postgresClient.deleteFromFavorites(username, projectId);
     res.status(200).send(pgResponse);
@@ -14,4 +14,4 @@ const deleteFavorite = async (req, res) => {
   }
 };
 
-module.exports = deleteFavorite;
+module.exports = removeFavorite;

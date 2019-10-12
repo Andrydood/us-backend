@@ -1,13 +1,281 @@
 {
-  "openapi": "3.0.0",
-  "info": {
+  "swagger" : "2.0",
+  "info" : {
+    "description" : "",
+    "version" : "1.0.0",
+    "title" : "US Backend",
+    "contact" : { }
   },
-  "consumes": [
-    "application/json"
-  ],
-  "produces": [
-    "application/json"
-  ],
-  "paths": {},
-  "definitions": {}
+  "consumes" : [ "application/json" ],
+  "produces" : [ "application/json" ],
+  "paths" : {
+    "/user/create" : {
+      "post" : {
+        "summary" : "Creates a new user",
+        "consumes" : [ ],
+        "parameters" : [ {
+          "name" : "body",
+          "in" : "body",
+          "required" : true,
+          "schema" : {
+            "type" : "object",
+            "required" : [ "email", "password", "username" ],
+            "properties" : {
+              "email" : {
+                "type" : "string"
+              },
+              "username" : {
+                "type" : "string"
+              },
+              "password" : {
+                "type" : "string"
+              }
+            }
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Status 200"
+          }
+        }
+      }
+    },
+    "/user/login" : {
+      "post" : {
+        "summary" : "Logs user in and returns token",
+        "consumes" : [ ],
+        "parameters" : [ {
+          "name" : "body",
+          "in" : "body",
+          "required" : true,
+          "schema" : {
+            "type" : "object",
+            "required" : [ "email" ],
+            "properties" : {
+              "email" : {
+                "type" : "string"
+              },
+              "password" : {
+                "type" : "string"
+              }
+            }
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Status 200",
+            "schema" : {
+              "type" : "object",
+              "properties" : {
+                "token" : {
+                  "type" : "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/profile/{userId}" : {
+      "get" : {
+        "summary" : "Lists information about a given user",
+        "parameters" : [ {
+          "name" : "page",
+          "in" : "query",
+          "required" : false,
+          "type" : "number",
+          "description" : "0 Indexed pagination"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Status 200",
+            "schema" : {
+              "type" : "object",
+              "properties" : {
+                "projects" : {
+                  "type" : "array",
+                  "items" : {
+                    "type" : "object"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "Authentication" : [ ]
+        } ]
+      },
+      "parameters" : [ {
+        "name" : "userId",
+        "in" : "path",
+        "required" : true,
+        "type" : "string"
+      } ]
+    },
+    "/projects" : {
+      "get" : {
+        "summary" : "Lists all projects, 10 per page",
+        "parameters" : [ {
+          "name" : "page",
+          "in" : "query",
+          "required" : false,
+          "type" : "number",
+          "description" : "0 Indexed pagination"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Status 200",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "type" : "object"
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "Authentication" : [ ]
+        } ]
+      },
+      "post" : {
+        "summary" : "Create a new project",
+        "consumes" : [ ],
+        "parameters" : [ {
+          "name" : "body",
+          "in" : "body",
+          "required" : true,
+          "schema" : {
+            "type" : "object",
+            "required" : [ "description", "name" ],
+            "properties" : {
+              "name" : {
+                "type" : "string"
+              },
+              "description" : {
+                "type" : "string"
+              }
+            }
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Status 200"
+          }
+        },
+        "security" : [ {
+          "Authentication" : [ ]
+        } ]
+      }
+    },
+    "/projects/{projectId}" : {
+      "get" : {
+        "summary" : "Returns data about specific project",
+        "parameters" : [ ],
+        "responses" : {
+          "200" : {
+            "description" : "Status 200",
+            "schema" : {
+              "type" : "object"
+            }
+          }
+        },
+        "security" : [ {
+          "Authentication" : [ ]
+        } ]
+      },
+      "parameters" : [ {
+        "name" : "projectId",
+        "in" : "path",
+        "required" : true,
+        "type" : "string"
+      } ]
+    },
+    "/favorites" : {
+      "get" : {
+        "summary" : "Lists favorite projects for authenticated user",
+        "parameters" : [ {
+          "name" : "page",
+          "in" : "header",
+          "required" : false,
+          "type" : "number",
+          "description" : "Page in list of projects"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Status 200",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "type" : "object"
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "Authentication" : [ ]
+        } ]
+      },
+      "post" : {
+        "summary" : "Add a project to the authenticated user's favorites",
+        "consumes" : [ ],
+        "parameters" : [ {
+          "name" : "body",
+          "in" : "body",
+          "required" : true,
+          "schema" : {
+            "type" : "object",
+            "properties" : {
+              "projectId" : {
+                "type" : "string"
+              }
+            }
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Status 200"
+          }
+        },
+        "security" : [ {
+          "Authentication" : [ ]
+        } ]
+      }
+    },
+    "/favorites/remove" : {
+      "post" : {
+        "summary" : "Removes favorite from favorites list for authenticated user",
+        "consumes" : [ ],
+        "parameters" : [ {
+          "name" : "body",
+          "in" : "body",
+          "required" : true,
+          "schema" : {
+            "type" : "object",
+            "properties" : {
+              "projectId" : {
+                "type" : "string"
+              }
+            }
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Status 200"
+          }
+        },
+        "security" : [ {
+          "Authentication" : [ ]
+        } ]
+      }
+    }
+  },
+  "securityDefinitions" : {
+    "Authentication" : {
+      "description" : "An authentication header with a valid token is needed to access this endpoint",
+      "type" : "apiKey",
+      "name" : "Authentication",
+      "in" : "header"
+    }
+  }
 }
