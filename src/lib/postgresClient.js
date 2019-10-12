@@ -74,6 +74,16 @@ class PostgresClient {
     return _.get(dbResponse, 'rows');
   }
 
+  deleteProject(username, projectId) {
+    const deleteQuery = `
+      DELETE FROM projects
+      WHERE id=$1
+      AND owner=$2
+    `;
+
+    return this.pool.query(deleteQuery, [projectId, username]);
+  }
+
   addToFavorites(username, projectId) {
     const insertQuery = `
       INSERT INTO favorites (username, project_id)

@@ -184,6 +184,19 @@
           "Authentication" : [ ]
         } ]
       },
+      "delete" : {
+        "summary" : "Deletes project if owner is authenticated",
+        "consumes" : [ ],
+        "parameters" : [ ],
+        "responses" : {
+          "200" : {
+            "description" : "Status 200"
+          }
+        },
+        "security" : [ {
+          "Authentication" : [ ]
+        } ]
+      },
       "parameters" : [ {
         "name" : "projectId",
         "in" : "path",
@@ -242,23 +255,11 @@
         } ]
       }
     },
-    "/favorites/remove" : {
-      "post" : {
+    "/favorites/{projectId}" : {
+      "delete" : {
         "summary" : "Removes favorite from favorites list for authenticated user",
         "consumes" : [ ],
-        "parameters" : [ {
-          "name" : "body",
-          "in" : "body",
-          "required" : true,
-          "schema" : {
-            "type" : "object",
-            "properties" : {
-              "projectId" : {
-                "type" : "string"
-              }
-            }
-          }
-        } ],
+        "parameters" : [ ],
         "responses" : {
           "200" : {
             "description" : "Status 200"

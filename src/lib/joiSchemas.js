@@ -45,14 +45,9 @@ const addFavoriteSchema = Joi.object({
   projectId: projectIdSchema,
 });
 
-const removeFavoriteSchema = Joi.object({
-  projectId: projectIdSchema,
-});
-
 module.exports = {
   createUserSchema,
   loginUserSchema,
   createProjectSchema,
   addFavoriteSchema,
-  removeFavoriteSchema,
 };

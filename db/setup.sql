@@ -30,27 +30,27 @@ END;
 $$ LANGUAGE plpgsql;
 
 create table users (
-	username TEXT 
+	username TEXT
 		UNIQUE
 		PRIMARY KEY
 		NOT NULL,
-	email TEXT 
+	email TEXT
 		UNIQUE
 		NOT NULL,
-	passwordhash TEXT 
+	passwordhash TEXT
 		NOT NULL,
   	created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   	updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 create table projects (
-	id BIGINT 
+	id BIGINT
 		DEFAULT pseudo_encrypt(nextval('seq')::int)
 		PRIMARY KEY,
-	owner TEXT 
+	owner TEXT
 		REFERENCES users(username)
-		NOT NULL,	
-	name TEXT 
+		NOT NULL,
+	name TEXT
 		NOT NULL,
   	created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   	updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -64,11 +64,13 @@ create table projects (
 );
 
 create table favorites (
-	username TEXT 
+	username TEXT
 		REFERENCES users(username)
+		ON DELETE CASCADE
 		NOT NULL,
-	project_id BIGINT 
+	project_id BIGINT
 		REFERENCES projects(id)
+		ON DELETE CASCADE
 		NOT NULL,
 	UNIQUE (username, project_id)
 );
