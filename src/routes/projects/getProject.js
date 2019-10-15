@@ -6,10 +6,10 @@ const getProject = async (req, res) => {
       res.status(200).send(dbResponse);
     } catch (err) {
       req.logger.error(err);
-      res.status(400).send('Error getting project');
+      res.status(400).send({ message: 'Error getting project' });
     }
   }
-  res.status(400).send('Supply a projectId');
+  res.status(400).send({ message: 'Supply a projectId' });
 };
 
 module.exports = getProject;

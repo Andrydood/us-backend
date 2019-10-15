@@ -1,48 +1,47 @@
 const Joi = require('@hapi/joi');
 
-const emailSchema = Joi.string().email()
-  .min(3)
-  .max(100);
+const email = Joi.string().email().min(3).max(100);
 
-const usernameSchema = Joi.string().alphanum()
-  .min(3)
-  .max(100);
+const shortString = Joi.string().min(3).max(30);
 
-const passwordSchema = Joi.string()
-  .min(3)
-  .max(100);
+const mediumString = Joi.string().min(3).max(500);
 
-const passwordHashSchema = Joi.string()
-  .min(3)
-  .max(100);
+const longString = Joi.string().min(3).max(5000);
 
-const projectIdSchema = Joi.string()
-  .min(3)
-  .max(50)
-  .required();
+const locationIdSchema = Joi.number();
+
+const projectIdSchema = Joi.string().min(3).max(50);
+
+const skillIdsSchema = Joi.array().items(Joi.number());
 
 const createUserSchema = Joi.object({
-  email: emailSchema.required(),
-  username: usernameSchema.required(),
-  password: passwordSchema.required(),
+  email: email.required(),
+  username: shortString.required(),
+  password: shortString.required(),
+  firstName: shortString,
+  lastName: shortString,
+  bio: mediumString,
+  locationId: locationIdSchema,
+  skillIds: skillIdsSchema,
 });
 
 const loginUserSchema = Joi.object({
-  email: emailSchema.required(),
-  password: passwordHashSchema.required(),
+  email: email.required(),
+  password: mediumString.required(),
 });
 
 const createProjectSchema = Joi.object({
-  name: Joi.string()
-    .min(3)
-    .max(140)
-    .required(),
-  description: Joi.string()
-    .max(5000),
+  name: mediumString.required(),
+  description: longString.required(),
+  skillsNeeded: skillIdsSchema.required(),
+  locationId: locationIdSchema,
+  inspiredBy: longString,
+  assets: longString,
+  contact: Joi.object(),
 });
 
 const addFavoriteSchema = Joi.object({
-  projectId: projectIdSchema,
+  projectId: projectIdSchema.required(),
 });
 
 module.exports = {
