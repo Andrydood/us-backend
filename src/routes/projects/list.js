@@ -5,7 +5,7 @@ const list = async (req, res) => {
     res.status(200).send(projectList);
   } catch (err) {
     req.logger.error(err);
-    res.status(400).send('Error getting projects');
+    res.status(400).send({ message: 'Error getting projects' });
   }
 };
 

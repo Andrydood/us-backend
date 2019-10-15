@@ -1,25 +1,39 @@
-create sequence seq maxvalue 2147483647;
+-- From: https://blog.andyet.com/2016/02/23/generating-shortids-in-postgres/
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
-CREATE OR REPLACE FUNCTION pseudo_encrypt(VALUE int) returns int AS $$
+CREATE OR REPLACE FUNCTION unique_short_id()
+RETURNS TRIGGER AS $$
+
 DECLARE
-l1 int;
-l2 int;
-r1 int;
-r2 int;
-i int:=0;
+  key TEXT;
+  qry TEXT;
+  found TEXT;
+
 BEGIN
- l1:= (VALUE >> 16) & 65535;
- r1:= VALUE & 65535;
- WHILE i < 3 LOOP
-   l2 := r1;
-   r2 := l1 # ((((1366 * r1 + 150889) % 714025) / 714025.0) * 32767)::int;
-   l1 := l2;
-   r1 := r2;
-   i := i + 1;
- END LOOP;
- RETURN ((r1 << 16) + l1);
+
+  qry := 'SELECT id FROM ' || quote_ident(TG_TABLE_NAME) || ' WHERE id=';
+
+  LOOP
+
+    key := encode(gen_random_bytes(6), 'base64');
+
+    key := replace(key, '/', '_'); -- url safe replacement
+    key := replace(key, '+', '-'); -- url safe replacement
+
+    EXECUTE qry || quote_literal(key) INTO found;
+
+    IF found IS NULL THEN
+
+      EXIT;
+    END IF;
+
+  END LOOP;
+
+  NEW.id = key;
+
+  RETURN NEW;
 END;
-$$ LANGUAGE plpgsql strict immutable;
+$$ language 'plpgsql';
 
 CREATE OR REPLACE FUNCTION trigger_set_timestamp()
 RETURNS TRIGGER AS $$
@@ -29,58 +43,125 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-create table users (
-	username TEXT
+create table locations (
+	id SERIAL
 		UNIQUE
 		PRIMARY KEY
+		NOT NULL,
+	name TEXT
+		UNIQUE
+		NOT NULL
+);
+
+create table skills (
+	id SERIAL
+		UNIQUE
+		PRIMARY KEY
+		NOT NULL,
+	name TEXT
+		UNIQUE
+		NOT NULL
+);
+
+create table users (
+	id TEXT
+		UNIQUE
+		NOT NULL
+		PRIMARY KEY,
+	username TEXT
+		UNIQUE
 		NOT NULL,
 	email TEXT
 		UNIQUE
 		NOT NULL,
 	passwordhash TEXT
 		NOT NULL,
+	first_name TEXT,
+	last_name TEXT,
+	bio TEXT,
+	location_id INTEGER
+		REFERENCES locations(id),
   	created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   	updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-create table projects (
-	id BIGINT
-		DEFAULT pseudo_encrypt(nextval('seq')::int)
-		PRIMARY KEY,
-	owner TEXT
-		REFERENCES users(username)
-		NOT NULL,
-	name TEXT
-		NOT NULL,
-  	created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  	updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-	description TEXT
-		NOT NULL,
-	location TEXT,
-	inspired_by TEXT,
-	seeking_skills TEXT,
-	assets TEXT,
-	contact TEXT
-);
+CREATE TRIGGER trigger_users_genid BEFORE INSERT ON users FOR EACH ROW EXECUTE PROCEDURE unique_short_id();
 
-create table favorites (
-	username TEXT
-		REFERENCES users(username)
-		ON DELETE CASCADE
-		NOT NULL,
-	project_id BIGINT
-		REFERENCES projects(id)
-		ON DELETE CASCADE
-		NOT NULL,
-	UNIQUE (username, project_id)
-);
-
-CREATE TRIGGER set_timestamp
+CREATE TRIGGER set_users_timestamp
 BEFORE UPDATE ON users
 FOR EACH ROW
 EXECUTE PROCEDURE trigger_set_timestamp();
 
-CREATE TRIGGER set_timestamp
+create table projects (
+	id TEXT
+		UNIQUE
+		NOT NULL
+		PRIMARY KEY,
+	owner_id TEXT
+		REFERENCES users(id)
+		NOT NULL,
+	name TEXT
+		NOT NULL,
+	description TEXT
+		NOT NULL,
+	location_id INTEGER
+		REFERENCES locations(id),
+	inspired_by TEXT,
+	assets TEXT,
+	contact JSON,
+  	created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  	updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TRIGGER trigger_projects_genid BEFORE INSERT ON projects FOR EACH ROW EXECUTE PROCEDURE unique_short_id();
+
+CREATE TRIGGER set_projects_timestamp
 BEFORE UPDATE ON projects
 FOR EACH ROW
 EXECUTE PROCEDURE trigger_set_timestamp();
+
+create table favorites (
+	user_id TEXT
+		REFERENCES users(id)
+		ON DELETE CASCADE
+		NOT NULL,
+	project_id TEXT
+		REFERENCES projects(id)
+		ON DELETE CASCADE
+		NOT NULL,
+	UNIQUE (user_id, project_id)
+);
+
+create table user_skills (
+	user_id TEXT
+		REFERENCES users(id)
+		ON DELETE CASCADE
+		NOT NULL,
+	skill_id INTEGER
+		REFERENCES skills(id)
+		ON DELETE CASCADE
+		NOT NULL,
+	UNIQUE (user_id, skill_id)
+);
+
+create table project_seeking_skills (
+	project_id TEXT
+		REFERENCES projects(id)
+		ON DELETE CASCADE
+		NOT NULL,
+	skill_id INTEGER
+		REFERENCES skills(id)
+		ON DELETE CASCADE
+		NOT NULL,
+	UNIQUE (project_id, skill_id)
+);
+
+INSERT INTO locations (name)
+VALUES  ('Anywhere'),
+		('London');
+
+INSERT INTO skills (name)
+VALUES  ('Dancing'),
+		('Singing');
+		('Drawing'),
+		('Writing');
