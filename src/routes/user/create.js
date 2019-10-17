@@ -28,7 +28,8 @@ const create = async (req, res) => {
     res.status(201).send({ id: userId });
   } catch (err) {
     req.logger.error(err);
-    res.status(400).send({ message: 'Invalid data' });
+    const { constraint } = err;
+    res.status(400).send({ message: 'Invalid data', constraint });
   }
 };
 
