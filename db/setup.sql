@@ -162,6 +162,6 @@ VALUES  ('Anywhere'),
 
 INSERT INTO skills (name)
 VALUES  ('Dancing'),
-		('Singing');
+		('Singing'),
 		('Drawing'),
 		('Writing');
