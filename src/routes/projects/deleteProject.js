@@ -7,9 +7,8 @@ const deleteProject = async (req, res) => {
       if (ownerId === userId) {
         await req.postgresClient.deleteProject(userId, projectId);
         return res.status(200).send({ message: 'Project deleted' });
-      } else {
-        return res.status(400).send({ message: 'Invalid request' });
       }
+      return res.status(400).send({ message: 'Invalid request' });
     } catch (err) {
       req.logger.error(err);
       return res.status(400).send({ message: 'Invalid data' });
