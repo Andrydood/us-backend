@@ -20,13 +20,13 @@ const login = async (req, res) => {
     const passwordIsCorrect = await checkPassword(password, passwordhash);
     if (passwordIsCorrect) {
       const token = generateAuthToken(username, id);
-      res.status(200).send({ token });
+      return res.status(200).send({ token });
     } else {
-      res.status(400).send({ message: 'Incorrect password' });
+      return res.status(400).send({ message: 'Incorrect password' });
     }
   } catch (err) {
     req.logger.error(err);
-    res.status(400).send({ message: 'Invalid data' });
+    return res.status(400).send({ message: 'Invalid data' });
   }
 };
 

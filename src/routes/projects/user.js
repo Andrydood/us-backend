@@ -4,13 +4,13 @@ const getUserProjects = async (req, res) => {
     try {
       const page = req.query.page || 0;
       const dbResponse = await req.postgresClient.getUserProjects(username, page);
-      res.status(200).send(dbResponse);
+      return res.status(200).send({ projects: dbResponse });
     } catch (err) {
       req.logger.error(err);
-      res.status(400).send({ message: 'Error getting projects' });
+      return res.status(400).send({ message: 'Error getting projects' });
     }
   }
-  res.status(400).send({ message: 'Supply a username' });
+  return res.status(400).send({ message: 'Supply a username' });
 };
 
 module.exports = getUserProjects;

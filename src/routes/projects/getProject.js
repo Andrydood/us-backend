@@ -3,13 +3,13 @@ const getProject = async (req, res) => {
   if (projectId) {
     try {
       const dbResponse = await req.postgresClient.getProjectById(projectId);
-      res.status(200).send(dbResponse);
+      return res.status(200).send(dbResponse);
     } catch (err) {
       req.logger.error(err);
-      res.status(400).send({ message: 'Error getting project' });
+      return res.status(400).send({ message: 'Error getting project' });
     }
   }
-  res.status(400).send({ message: 'Supply a projectId' });
+  return res.status(400).send({ message: 'Supply a projectId' });
 };
 
 module.exports = getProject;

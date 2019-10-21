@@ -23,10 +23,10 @@ const create = async (req, res) => {
     if (skillsNeeded) {
       await req.postgresClient.addProjectSkills(projectId, skillsNeeded);
     }
-    res.status(201).send({ id: projectId });
+    return res.status(201).send({ id: projectId });
   } catch (err) {
     req.logger.error(err);
-    res.status(400).send({ message: 'Invalid data' });
+    return res.status(400).send({ message: 'Invalid data' });
   }
 };
 
