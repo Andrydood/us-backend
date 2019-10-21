@@ -9,9 +9,8 @@ const addFavorite = async (req, res) => {
     if (ownerId !== userId) {
       await req.postgresClient.addToFavorites(userId, projectId);
       return res.status(201).send({ message: 'Favorite added' });
-    } else {
-      return res.status(400).send({ message: 'You can\'t favorite your own project' });
     }
+    return res.status(400).send({ message: 'You can\'t favorite your own project' });
   } catch (err) {
     req.logger.error(err);
     return res.status(400).send({ message: 'Invalid data' });
