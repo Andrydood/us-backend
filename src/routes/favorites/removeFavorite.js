@@ -4,13 +4,13 @@ const removeFavorite = async (req, res) => {
     try {
       const { id: userId } = req.auth;
       await req.postgresClient.deleteFromFavorites(userId, projectId);
-      res.status(200).send({ message: 'Favorite removed' });
+      return res.status(200).send({ message: 'Favorite removed' });
     } catch (err) {
       req.logger.error(err);
-      res.status(400).send({ message: 'Invalid data' });
+      return res.status(400).send({ message: 'Invalid data' });
     }
   }
-  res.status(400).send({ message: 'Supply a projectId' });
+  return res.status(400).send({ message: 'Supply a projectId' });
 };
 
 module.exports = removeFavorite;
