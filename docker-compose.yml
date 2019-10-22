@@ -1,0 +1,21 @@
+# docker-compose.yml
+version: "3"
+services:
+  app:
+    build:
+      context: ./Docker
+      dockerfile: app.Dockerfile
+    depends_on:
+      - postgres
+    ports:
+      - "4000:4000"
+      - "9229:9229"
+
+ 
+  postgres:
+    build:
+      context: ./Docker
+      dockerfile: db.Dockerfile
+    volumes:
+      - ~/dbdata:/var/lib/postgresql/data
+  
