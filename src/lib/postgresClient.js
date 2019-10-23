@@ -225,6 +225,24 @@ class PostgresClient {
     );
     return _.get(dbResponse, 'rows');
   }
+
+  async getAllSkills() {
+    const selectQuery = `
+      SELECT id, name
+      FROM skills
+    `;
+    const dbResponse = await this.pool.query(selectQuery);
+    return _.get(dbResponse, 'rows');
+  }
+
+  async getAllLocations() {
+    const selectQuery = `
+      SELECT id, name
+      FROM locations
+    `;
+    const dbResponse = await this.pool.query(selectQuery);
+    return _.get(dbResponse, 'rows');
+  }
 }
 
 module.exports = PostgresClient;
