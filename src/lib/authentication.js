@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const config = require('config');
 const bcrypt = require('bcrypt');
 
-const JWT_TTL = '2 days';
+const JWT_TTL = '3 days';
 const SALT_ROUNDS = 10;
 
 const authenticationKey = config.get('authenticationKey');
