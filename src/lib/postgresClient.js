@@ -55,8 +55,8 @@ class PostgresClient {
     const selectQuery = `
       SELECT users.id, users.username, users.first_name, users.last_name, users.bio, locations.name AS location, skill_groups.skills
       FROM users
-      JOIN locations ON users.location_id = locations.id
-      JOIN (
+      LEFT JOIN locations ON users.location_id = locations.id
+      LEFT JOIN (
         SELECT user_skills.user_id user_id, array_to_json(array_agg(json_build_object('name', skills.name, 'id', skills.id))) skills
         FROM user_skills
         INNER JOIN skills ON skills.id = user_skills.skill_id
@@ -124,8 +124,8 @@ class PostgresClient {
     const selectQuery = `
       SELECT users.username as owner, projects.id, projects.name, projects.description, projects.inspired_by, projects.assets, projects.contact, locations.name AS location, skill_groups.skills AS needed_skills
       FROM projects
-      JOIN locations ON projects.location_id = locations.id
-      JOIN (
+      LEFT JOIN locations ON projects.location_id = locations.id
+      LEFT JOIN (
         SELECT project_seeking_skills.project_id project_id, array_to_json(array_agg(json_build_object('name', skills.name, 'id', skills.id))) skills
         FROM project_seeking_skills
         INNER JOIN skills ON skills.id = project_seeking_skills.skill_id
@@ -142,8 +142,8 @@ class PostgresClient {
     const selectQuery = `
       SELECT users.username as owner, projects.id, projects.name, projects.description, projects.inspired_by, projects.assets, projects.contact, locations.name AS location, skill_groups.skills AS needed_skills
       FROM projects
-      JOIN locations ON projects.location_id = locations.id
-      JOIN (
+      LEFT JOIN locations ON projects.location_id = locations.id
+      LEFT JOIN (
         SELECT project_seeking_skills.project_id project_id, array_to_json(array_agg(json_build_object('name', skills.name, 'id', skills.id))) skills
         FROM project_seeking_skills
         INNER JOIN skills ON skills.id = project_seeking_skills.skill_id
@@ -164,8 +164,8 @@ class PostgresClient {
     const selectQuery = `
       SELECT users.username as owner, projects.id, projects.name, projects.description, projects.inspired_by, projects.assets, projects.contact, locations.name AS location, skill_groups.skills AS needed_skills
       FROM projects
-      JOIN locations ON projects.location_id = locations.id
-      JOIN (
+      LEFT JOIN locations ON projects.location_id = locations.id
+      LEFT JOIN (
         SELECT project_seeking_skills.project_id project_id, array_to_json(array_agg(json_build_object('name', skills.name, 'id', skills.id))) skills
         FROM project_seeking_skills
         INNER JOIN skills ON skills.id = project_seeking_skills.skill_id
@@ -206,8 +206,8 @@ class PostgresClient {
     const selectQuery = `
       SELECT users.username as owner, projects.id, projects.name, projects.description, projects.inspired_by, projects.assets, projects.contact, locations.name AS location, skill_groups.skills AS needed_skills
       FROM projects
-      JOIN locations ON projects.location_id = locations.id
-      JOIN (
+      LEFT JOIN locations ON projects.location_id = locations.id
+      LEFT JOIN (
         SELECT project_seeking_skills.project_id project_id, array_to_json(array_agg(json_build_object('name', skills.name, 'id', skills.id))) skills
         FROM project_seeking_skills
         INNER JOIN skills ON skills.id = project_seeking_skills.skill_id
@@ -223,6 +223,24 @@ class PostgresClient {
       selectQuery,
       [userId, PROJECTS_PER_PAGE, PROJECTS_PER_PAGE * page],
     );
+    return _.get(dbResponse, 'rows');
+  }
+
+  async getAllSkills() {
+    const selectQuery = `
+      SELECT id, name
+      FROM skills
+    `;
+    const dbResponse = await this.pool.query(selectQuery);
+    return _.get(dbResponse, 'rows');
+  }
+
+  async getAllLocations() {
+    const selectQuery = `
+      SELECT id, name
+      FROM locations
+    `;
+    const dbResponse = await this.pool.query(selectQuery);
     return _.get(dbResponse, 'rows');
   }
 }

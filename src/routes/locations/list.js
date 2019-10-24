@@ -1,11 +1,8 @@
-const camelCaseKeys = require('camelcase-keys');
-
 const list = async (req, res) => {
   try {
-    const page = req.query.page || 0;
-    const dbResponse = await req.postgresClient.getAllProjects(page);
+    const dbResponse = await req.postgresClient.getAllLocations();
     if (dbResponse) {
-      return res.status(200).send({ projects: camelCaseKeys(dbResponse) });
+      return res.status(200).send({ locations: dbResponse });
     }
     return res.status(400).send({ message: 'Not found' });
   } catch (err) {
