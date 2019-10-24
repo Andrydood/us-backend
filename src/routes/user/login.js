@@ -10,8 +10,14 @@ const login = async (req, res) => {
     ],
   );
   const { email, password } = req.body;
+
   try {
     await loginUserSchema.validateAsync(userData);
+  } catch (err) {
+    return res.status(400).send({ message: 'Bad request' });
+  }
+
+  try {
     const {
       username,
       passwordhash,
@@ -24,8 +30,8 @@ const login = async (req, res) => {
     }
     return res.status(400).send({ message: 'Incorrect password' });
   } catch (err) {
-    req.logger.error(err);
-    return res.status(400).send({ message: 'Invalid data' });
+    req.logger.error({ error: JSON.stringify(err) });
+    return res.status(500).send({ message: 'Server error' });
   }
 };
 
