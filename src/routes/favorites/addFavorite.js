@@ -2,18 +2,20 @@ const { addFavoriteSchema } = require('../../lib/joiSchemas');
 
 const addFavorite = async (req, res) => {
   const { projectId } = req.body;
+
   try {
     await addFavoriteSchema.validateAsync({ projectId });
-    const { id: userId } = req.auth;
-    const { owner_id: ownerId } = await req.postgresClient.getProjectOwner(projectId);
-    if (ownerId !== userId) {
-      await req.postgresClient.addToFavorites(userId, projectId);
-      return res.status(201).send({ message: 'Favorite added' });
-    }
-    return res.status(400).send({ message: 'You can\'t favorite your own project' });
   } catch (err) {
-    req.logger.error(err);
-    return res.status(400).send({ message: 'Invalid data' });
+    return res.status(400).send({ message: 'Bad request' });
+  }
+
+  try {
+    const { id: userId } = req.auth;
+    await req.postgresClient.addToFavorites(userId, projectId);
+    return res.status(201).send({ message: 'Favorite added' });
+  } catch (err) {
+    req.logger.error({ error: JSON.stringify(err) });
+    return res.status(500).send({ message: 'Server error' });
   }
 };
 

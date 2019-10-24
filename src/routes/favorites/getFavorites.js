@@ -5,10 +5,13 @@ const getFavorites = async (req, res) => {
     const page = req.query.page || 0;
     const { id: userId } = req.auth;
     const dbResponse = await req.postgresClient.getFavoritesByUser(userId, page);
-    return res.status(200).send({ projects: camelCaseKeys(dbResponse) });
+    if (dbResponse) {
+      return res.status(200).send({ projects: camelCaseKeys(dbResponse) });
+    }
+    return res.status(400).send({ message: 'Not found' });
   } catch (err) {
-    req.logger.error(err);
-    return res.status(400).send({ message: 'Error getting project' });
+    req.logger.error({ error: JSON.stringify(err) });
+    return res.status(500).send({ message: 'Server error' });
   }
 };
 
