@@ -5,10 +5,13 @@ const getProject = async (req, res) => {
   if (projectId) {
     try {
       const dbResponse = await req.postgresClient.getProjectById(projectId);
-      return res.status(200).send(camelCaseKeys(dbResponse));
+      if (dbResponse) {
+        return res.status(200).send(camelCaseKeys(dbResponse));
+      }
+      return res.status(400).send({ message: 'Not found' });
     } catch (err) {
-      req.logger.error(err);
-      return res.status(400).send({ message: 'Error getting project' });
+      req.logger.error({ error: JSON.stringify(err) });
+      return res.status(500).send({ message: 'Server error' });
     }
   }
   return res.status(400).send({ message: 'Supply a projectId' });
