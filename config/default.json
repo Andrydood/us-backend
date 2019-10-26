@@ -2,9 +2,8 @@
   "authenticationKey": "YhRwrA03s9",
   "postgres": {
     "user": "postgres",
-    "host": "localhost",
-    "database": "usbackend",
-    "password": null,
+    "host": "postgres",
+    "password": "postgres",
     "port": 5432
   }
 }
