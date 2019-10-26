@@ -40,3 +40,6 @@ For mac users the easiest option is to download the [postgres.app](https://postg
     ```
 4. Go wild!
 
+5. Docker  
+    a) `docker build -t usbackend . `
+    b) 
