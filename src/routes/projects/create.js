@@ -16,7 +16,6 @@ const create = async (req, res) => {
 
   const { skillsNeeded } = req.body;
 
-
   try {
     await createProjectSchema.validateAsync(projectData);
   } catch (err) {
