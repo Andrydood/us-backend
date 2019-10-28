@@ -183,6 +183,20 @@ class PostgresClient {
     return _.get(dbResponse, 'rows');
   }
 
+  async checkIfFavorite(userId, projectId) {
+    const selectQuery = `
+      SELECT EXISTS(
+        SELECT
+        FROM favorites
+        WHERE project_id=$1
+        AND user_id=$2
+      )
+    `;
+
+    const dbResponse = await this.pool.query(selectQuery, [projectId, userId]);
+    return { isFavorite: _.get(dbResponse, 'rows.0.exists') };
+  }
+
   addToFavorites(userId, projectId) {
     const insertQuery = `
       INSERT INTO favorites (user_id, project_id)
