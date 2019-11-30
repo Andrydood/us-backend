@@ -122,7 +122,7 @@ class PostgresClient {
 
   async getProjectById(projectId) {
     const selectQuery = `
-      SELECT users.username as owner, projects.id, projects.name, projects.description, projects.inspired_by, projects.assets, projects.contact, locations.name AS location, skill_groups.skills AS needed_skills
+      SELECT users.username as owner, projects.id, projects.name, projects.description, projects.inspired_by, projects.assets, projects.contact, locations.name AS location, skill_groups.skills AS needed_skills, favorite_counts.count AS likes, projects.created_at
       FROM projects
       LEFT JOIN locations ON projects.location_id = locations.id
       LEFT JOIN (
@@ -131,6 +131,11 @@ class PostgresClient {
         INNER JOIN skills ON skills.id = project_seeking_skills.skill_id
         GROUP BY project_seeking_skills.project_id
       )skill_groups ON skill_groups.project_id = projects.id
+      LEFT JOIN (
+        SELECT project_id, count(*) AS count
+        FROM favorites
+        GROUP BY project_id
+      )favorite_counts ON favorite_counts.project_id = projects.id
       JOIN users ON projects.owner_id = users.id
       WHERE projects.id = $1;
     `;
@@ -140,7 +145,7 @@ class PostgresClient {
 
   async getAllProjects(page = 0) {
     const selectQuery = `
-      SELECT users.username as owner, projects.id, projects.name, projects.description, projects.inspired_by, projects.assets, projects.contact, locations.name AS location, skill_groups.skills AS needed_skills
+      SELECT users.username as owner, projects.id, projects.name, projects.description, projects.inspired_by, projects.assets, projects.contact, locations.name AS location, skill_groups.skills AS needed_skills, favorite_counts.count AS likes, projects.created_at
       FROM projects
       LEFT JOIN locations ON projects.location_id = locations.id
       LEFT JOIN (
@@ -149,6 +154,11 @@ class PostgresClient {
         INNER JOIN skills ON skills.id = project_seeking_skills.skill_id
         GROUP BY project_seeking_skills.project_id
       )skill_groups ON skill_groups.project_id = projects.id
+      LEFT JOIN (
+        SELECT project_id, count(*) AS count
+        FROM favorites
+        GROUP BY project_id
+      )favorite_counts ON favorite_counts.project_id = projects.id
       JOIN users ON projects.owner_id = users.id
       ORDER BY projects.created_at DESC
       LIMIT $1 OFFSET $2
@@ -162,7 +172,7 @@ class PostgresClient {
 
   async getUserProjects(username, page = 0) {
     const selectQuery = `
-      SELECT users.username as owner, projects.id, projects.name, projects.description, projects.inspired_by, projects.assets, projects.contact, locations.name AS location, skill_groups.skills AS needed_skills
+      SELECT users.username as owner, projects.id, projects.name, projects.description, projects.inspired_by, projects.assets, projects.contact, locations.name AS location, skill_groups.skills AS needed_skills, favorite_counts.count AS likes, projects.created_at
       FROM projects
       LEFT JOIN locations ON projects.location_id = locations.id
       LEFT JOIN (
@@ -171,6 +181,11 @@ class PostgresClient {
         INNER JOIN skills ON skills.id = project_seeking_skills.skill_id
         GROUP BY project_seeking_skills.project_id
       )skill_groups ON skill_groups.project_id = projects.id
+      LEFT JOIN (
+        SELECT project_id, count(*) AS count
+        FROM favorites
+        GROUP BY project_id
+      )favorite_counts ON favorite_counts.project_id = projects.id
       JOIN users ON projects.owner_id = users.id
       WHERE users.username=$1
       ORDER BY projects.created_at DESC
@@ -218,7 +233,7 @@ class PostgresClient {
 
   async getFavoritesByUser(userId, page = 0) {
     const selectQuery = `
-      SELECT users.username as owner, projects.id, projects.name, projects.description, projects.inspired_by, projects.assets, projects.contact, locations.name AS location, skill_groups.skills AS needed_skills
+      SELECT users.username as owner, projects.id, projects.name, projects.description, projects.inspired_by, projects.assets, projects.contact, locations.name AS location, skill_groups.skills AS needed_skills, favorite_counts.count AS likes, projects.created_at
       FROM projects
       LEFT JOIN locations ON projects.location_id = locations.id
       LEFT JOIN (
@@ -227,6 +242,11 @@ class PostgresClient {
         INNER JOIN skills ON skills.id = project_seeking_skills.skill_id
         GROUP BY project_seeking_skills.project_id
       )skill_groups ON skill_groups.project_id = projects.id
+      LEFT JOIN (
+        SELECT project_id, count(*) AS count
+        FROM favorites
+        GROUP BY project_id
+      )favorite_counts ON favorite_counts.project_id = projects.id
       JOIN users ON projects.owner_id = users.id
       JOIN favorites ON favorites.project_id = projects.id
       WHERE favorites.user_id = $1
