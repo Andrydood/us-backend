@@ -22,8 +22,6 @@ const createUserSchema = Joi.object({
   email: email.required(),
   username: Joi.string().max(20).min(3).required(),
   password: shortestString.min(3).required(),
-  firstName: shortestString.optional().allow('').allow(null),
-  lastName: shortestString.optional().allow('').allow(null),
   bio: mediumString.optional().allow('').allow(null),
   locationId: locationIdSchema.optional().allow('').allow(null),
   skillIds: skillIdsSchema.optional().allow('').allow(null),

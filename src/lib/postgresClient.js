@@ -13,19 +13,17 @@ class PostgresClient {
     email,
     username,
     hashedPassword,
-    firstName,
-    lastName,
     bio,
     locationId,
   }) {
     const insertQuery = `
-      INSERT INTO users(email, username, passwordhash, first_name, last_name, bio, location_id)
-      VALUES($1, $2, $3, $4, $5, $6, $7)
+      INSERT INTO users(email, username, passwordhash, bio, location_id)
+      VALUES($1, $2, $3, $4, $5)
       RETURNING id
     `;
     const dbResponse = await this.pool.query(
       insertQuery,
-      [email, username, hashedPassword, firstName, lastName, bio, locationId],
+      [email, username, hashedPassword, bio, locationId],
     );
     return _.get(dbResponse, 'rows.0');
   }
@@ -53,7 +51,7 @@ class PostgresClient {
 
   async getUserDataByUsername(username) {
     const selectQuery = `
-      SELECT users.id, users.username, users.first_name, users.last_name, users.bio, locations.name AS location, skill_groups.skills
+      SELECT users.id, users.username, users.bio, locations.name AS location, skill_groups.skills
       FROM users
       LEFT JOIN locations ON users.location_id = locations.id
       LEFT JOIN (

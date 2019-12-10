@@ -8,8 +8,6 @@ const create = async (req, res) => {
       'email',
       'username',
       'password',
-      'firstName',
-      'lastName',
       'bio',
       'locationId',
       'skillIds',

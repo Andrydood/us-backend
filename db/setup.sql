@@ -76,8 +76,6 @@ create table users (
 		NOT NULL,
 	passwordhash TEXT
 		NOT NULL,
-	first_name TEXT,
-	last_name TEXT,
 	bio TEXT,
 	location_id INTEGER
 		REFERENCES locations(id),
