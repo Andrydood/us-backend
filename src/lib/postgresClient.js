@@ -209,7 +209,9 @@ class PostgresClient {
     `;
 
     const dbResponse = await this.pool.query(selectQuery, [projectId, userId]);
-    return { isFavorite: _.get(dbResponse, 'rows.0.exists') };
+    return {
+      isFavorite: _.get(dbResponse, 'rows.0.exists'),
+    };
   }
 
   addToFavorites(userId, projectId) {
@@ -275,6 +277,108 @@ class PostgresClient {
       FROM locations
     `;
     const dbResponse = await this.pool.query(selectQuery);
+    return _.get(dbResponse, 'rows');
+  }
+
+  async findConversationId(userId, projectId) {
+    const selectQuery = `
+      SELECT id
+      FROM conversations
+      WHERE
+      EXISTS(
+        SELECT id
+        FROM conversations
+        WHERE project_id=$1
+        AND interested_user_id=$2
+     )
+    `;
+
+    const dbResponse = await this.pool.query(selectQuery, [projectId, userId]);
+    return _.get(dbResponse, 'rows.0.id');
+  }
+
+  async createConversation(userId, projectId) {
+    const insertQuery = `
+      INSERT INTO conversations (project_id, interested_user_id)
+      VALUES ($1, $2)
+      RETURNING id
+    `;
+
+    const dbResponse = await this.pool.query(insertQuery, [projectId, userId]);
+    return _.get(dbResponse, 'rows.0.id');
+  }
+
+  async getConversationParticipants(conversationId) {
+    const selectQuery = `
+      SELECT projects.owner_id, conversations.interested_user_id
+      FROM conversations
+      JOIN projects ON conversations.project_id = projects.id
+      WHERE conversations.id = $1
+    `;
+
+    const dbResponse = await this.pool.query(selectQuery, [conversationId]);
+    return _.get(dbResponse, 'rows.0');
+  }
+
+
+  updateConversationTime(conversationId) {
+    const insertQuery = `
+      UPDATE conversations
+      SET updated_at = NOW()
+      WHERE id = $1
+    `;
+
+    return this.pool.query(insertQuery, [conversationId]);
+  }
+
+  sendMessage(conversationId, senderId, message) {
+    const insertQuery = `
+      INSERT INTO messages (conversation_id, sender_id, content)
+      VALUES ($1, $2, $3)
+    `;
+
+    return this.pool.query(insertQuery, [conversationId, senderId, message]);
+  }
+
+  async getConversation(conversationId) {
+    const selectQuery = `
+      SELECT users.username, content, messages.created_at
+      FROM messages
+      LEFT JOIN users ON users.id = sender_id
+      WHERE conversation_id = $1
+      ORDER BY created_at ASC
+    `;
+
+    const dbResponse = await this.pool.query(selectQuery, [conversationId]);
+
+    return _.get(dbResponse, 'rows');
+  }
+
+  async getConversationsByInterestedUser(userId) {
+    const selectQuery = `
+      SELECT projects.name, users.username, conversations.id, conversations.updated_at
+      FROM conversations
+      JOIN projects ON conversations.project_id = projects.id
+      JOIN users ON projects.owner_id = users.id
+      WHERE interested_user_id = $1
+    `;
+
+    const dbResponse = await this.pool.query(selectQuery, [userId]);
+
+    return _.get(dbResponse, 'rows');
+  }
+
+  async getConversationsByProjectOwner(userId) {
+    const selectQuery = `
+      SELECT projects.name, users.username, conversations.id, conversations.updated_at
+      FROM conversations
+      JOIN projects ON conversations.project_id = projects.id
+      JOIN users ON conversations.interested_user_id = users.id
+      WHERE projects.owner_id = $1
+    `;
+
+    const dbResponse = await this.pool.query(selectQuery, [userId]);
+
     return _.get(dbResponse, 'rows');
   }
 }

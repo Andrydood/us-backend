@@ -156,6 +156,39 @@ create table project_seeking_skills (
 	UNIQUE (project_id, skill_id)
 );
 
+create table conversations (
+	id TEXT
+		UNIQUE
+		NOT NULL
+		PRIMARY KEY,
+	project_id TEXT
+		REFERENCES projects(id)
+		ON DELETE CASCADE
+		NOT NULL,
+	interested_user_id TEXT
+		REFERENCES users(id)
+		ON DELETE CASCADE
+		NOT NULL,
+	UNIQUE (project_id, interested_user_id),
+	updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TRIGGER trigger_conversations_genid BEFORE INSERT ON conversations FOR EACH ROW EXECUTE PROCEDURE unique_short_id();
+
+create table messages (
+	conversation_id TEXT
+		REFERENCES conversations(id)
+		ON DELETE CASCADE
+		NOT NULL,
+	sender_id TEXT
+		REFERENCES users(id)
+		ON DELETE CASCADE
+		NOT NULL,
+	content TEXT
+		NOT NULL,
+	created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
 INSERT INTO locations (name)
 VALUES  ('Anywhere'),
 		('London');

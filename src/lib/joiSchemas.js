@@ -14,6 +14,8 @@ const locationIdSchema = Joi.number();
 
 const projectIdSchema = Joi.string().max(50);
 
+const conversationIdSchema = Joi.string().max(50);
+
 const skillIdsSchema = Joi.array().items(Joi.number());
 
 const createUserSchema = Joi.object({
@@ -46,9 +48,20 @@ const addFavoriteSchema = Joi.object({
   projectId: projectIdSchema.required(),
 });
 
+const createChatSchema = Joi.object({
+  projectId: projectIdSchema.required(),
+});
+
+const sendMessageSchema = Joi.object({
+  conversationId: conversationIdSchema.required(),
+  message: Joi.string().required(),
+});
+
 module.exports = {
   createUserSchema,
   loginUserSchema,
   createProjectSchema,
   addFavoriteSchema,
+  createChatSchema,
+  sendMessageSchema,
 };

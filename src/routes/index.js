@@ -7,6 +7,7 @@ const favorites = require('./favorites');
 const docs = require('./docs');
 const locations = require('./locations');
 const skills = require('./skills');
+const chat = require('./chat');
 
 const router = express.Router();
 
@@ -17,5 +18,6 @@ router.use('/favorites', favorites);
 router.use('/user', user);
 router.use('/locations', locations);
 router.use('/skills', skills);
+router.use('/chat', chat);
 
 module.exports = router;
