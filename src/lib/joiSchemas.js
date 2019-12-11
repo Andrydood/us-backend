@@ -20,7 +20,8 @@ const skillIdsSchema = Joi.array().items(Joi.number());
 
 const createUserSchema = Joi.object({
   email: email.required(),
-  username: Joi.string().max(20).min(3).required(),
+  username: Joi.string().alphanum().max(20).min(3)
+    .required(),
   password: shortestString.min(3).required(),
   bio: mediumString.optional().allow('').allow(null),
   locationId: locationIdSchema.optional().allow('').allow(null),
