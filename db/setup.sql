@@ -43,16 +43,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-create table locations (
-	id SERIAL
-		UNIQUE
-		PRIMARY KEY
-		NOT NULL,
-	name TEXT
-		UNIQUE
-		NOT NULL
-);
-
 create table skills (
 	id SERIAL
 		UNIQUE
@@ -77,10 +67,10 @@ create table users (
 	passwordhash TEXT
 		NOT NULL,
 	bio TEXT,
-	location_id INTEGER
-		REFERENCES locations(id),
-  	created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  	updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+	location json,
+	initial_setup_complete BOOLEAN DEFAULT false,
+	created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+	updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE TRIGGER trigger_users_genid BEFORE INSERT ON users FOR EACH ROW EXECUTE PROCEDURE unique_short_id();
@@ -102,8 +92,7 @@ create table projects (
 		NOT NULL,
 	description TEXT
 		NOT NULL,
-	location_id INTEGER
-		REFERENCES locations(id),
+	location json,
 	inspired_by TEXT,
 	assets TEXT,
 	contact JSON,
@@ -186,10 +175,6 @@ create table messages (
 		NOT NULL,
 	created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
-
-INSERT INTO locations (name)
-VALUES  ('Anywhere'),
-		('London');
 
 INSERT INTO skills (name)
 VALUES  ('Dancing'),

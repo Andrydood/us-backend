@@ -22,10 +22,11 @@ const login = async (req, res) => {
       username,
       passwordhash,
       id,
+      initial_setup_complete: initialSetupIsComplete,
     } = await req.postgresClient.getUserCredentialsByEmail(email);
     const passwordIsCorrect = await checkPassword(password, passwordhash);
     if (passwordIsCorrect) {
-      const token = generateAuthToken(username, id);
+      const token = generateAuthToken(username, id, initialSetupIsComplete);
       return res.status(200).send({ token });
     }
     return res.status(400).send({ message: 'Incorrect password' });

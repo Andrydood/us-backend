@@ -13,19 +13,33 @@ class PostgresClient {
     email,
     username,
     hashedPassword,
-    bio,
-    locationId,
   }) {
     const insertQuery = `
-      INSERT INTO users(email, username, passwordhash, bio, location_id)
-      VALUES($1, $2, $3, $4, $5)
+      INSERT INTO users(email, username, passwordhash)
+      VALUES($1, $2, $3)
       RETURNING id
     `;
     const dbResponse = await this.pool.query(
       insertQuery,
-      [email, username, hashedPassword, bio, locationId],
+      [email, username, hashedPassword],
     );
     return _.get(dbResponse, 'rows.0');
+  }
+
+  async setupUser({
+    bio,
+    location,
+    userId,
+  }) {
+    const updateQuery = `
+      UPDATE users
+      SET bio = $1, location = $2, initial_setup_complete = true
+      WHERE id = $3
+    `;
+    return this.pool.query(
+      updateQuery,
+      [bio, location, userId],
+    );
   }
 
   async addUserSkills(userId, skillIds) {
@@ -41,7 +55,7 @@ class PostgresClient {
 
   async getUserCredentialsByEmail(email) {
     const selectQuery = `
-      SELECT passwordhash, username, id
+      SELECT passwordhash, username, id, initial_setup_complete
       FROM users
       WHERE email=$1
     `;
@@ -51,9 +65,8 @@ class PostgresClient {
 
   async getUserDataByUsername(username) {
     const selectQuery = `
-      SELECT users.id, users.username, users.bio, locations.name AS location, skill_groups.skills
+      SELECT users.id, users.username, users.bio, users.location, skill_groups.skills
       FROM users
-      LEFT JOIN locations ON users.location_id = locations.id
       LEFT JOIN (
         SELECT user_skills.user_id user_id, array_to_json(array_agg(json_build_object('name', skills.name, 'id', skills.id))) skills
         FROM user_skills
@@ -70,19 +83,19 @@ class PostgresClient {
     ownerId,
     name,
     description,
-    locationId,
+    location,
     inspiredBy,
     assets,
     contact,
   }) {
     const insertQuery = `
-      INSERT INTO projects (owner_id, name, description, location_id, inspired_by, assets, contact )
+      INSERT INTO projects (owner_id, name, description, location, inspired_by, assets, contact )
       VALUES ($1, $2, $3, $4, $5, $6, $7)
       RETURNING id
     `;
     const dbResponse = await this.pool.query(
       insertQuery,
-      [ownerId, name, description, locationId, inspiredBy, assets, contact],
+      [ownerId, name, description, location, inspiredBy, assets, contact],
     );
     return _.get(dbResponse, 'rows.0');
   }
@@ -120,9 +133,8 @@ class PostgresClient {
 
   async getProjectById(projectId) {
     const selectQuery = `
-      SELECT users.username as owner, projects.id, projects.name, projects.description, projects.inspired_by, projects.assets, projects.contact, locations.name AS location, skill_groups.skills AS needed_skills, favorite_counts.count AS likes, projects.created_at
+      SELECT users.username as owner, projects.id, projects.name, projects.description, projects.inspired_by, projects.assets, projects.contact, projects.location, skill_groups.skills AS needed_skills, favorite_counts.count AS likes, projects.created_at
       FROM projects
-      LEFT JOIN locations ON projects.location_id = locations.id
       LEFT JOIN (
         SELECT project_seeking_skills.project_id project_id, array_to_json(array_agg(json_build_object('name', skills.name, 'id', skills.id))) skills
         FROM project_seeking_skills
@@ -143,9 +155,8 @@ class PostgresClient {
 
   async getAllProjects(page = 0) {
     const selectQuery = `
-      SELECT users.username as owner, projects.id, projects.name, projects.description, projects.inspired_by, projects.assets, projects.contact, locations.name AS location, skill_groups.skills AS needed_skills, favorite_counts.count AS likes, projects.created_at
+      SELECT users.username as owner, projects.id, projects.name, projects.description, projects.inspired_by, projects.assets, projects.contact, projects.location, skill_groups.skills AS needed_skills, favorite_counts.count AS likes, projects.created_at
       FROM projects
-      LEFT JOIN locations ON projects.location_id = locations.id
       LEFT JOIN (
         SELECT project_seeking_skills.project_id project_id, array_to_json(array_agg(json_build_object('name', skills.name, 'id', skills.id))) skills
         FROM project_seeking_skills
@@ -170,9 +181,8 @@ class PostgresClient {
 
   async getUserProjects(username, page = 0) {
     const selectQuery = `
-      SELECT users.username as owner, projects.id, projects.name, projects.description, projects.inspired_by, projects.assets, projects.contact, locations.name AS location, skill_groups.skills AS needed_skills, favorite_counts.count AS likes, projects.created_at
+      SELECT users.username as owner, projects.id, projects.name, projects.description, projects.inspired_by, projects.assets, projects.contact, projects.location, skill_groups.skills AS needed_skills, favorite_counts.count AS likes, projects.created_at
       FROM projects
-      LEFT JOIN locations ON projects.location_id = locations.id
       LEFT JOIN (
         SELECT project_seeking_skills.project_id project_id, array_to_json(array_agg(json_build_object('name', skills.name, 'id', skills.id))) skills
         FROM project_seeking_skills
@@ -233,9 +243,8 @@ class PostgresClient {
 
   async getFavoritesByUser(userId, page = 0) {
     const selectQuery = `
-      SELECT users.username as owner, projects.id, projects.name, projects.description, projects.inspired_by, projects.assets, projects.contact, locations.name AS location, skill_groups.skills AS needed_skills, favorite_counts.count AS likes, projects.created_at
+      SELECT users.username as owner, projects.id, projects.name, projects.description, projects.inspired_by, projects.assets, projects.contact, projects.location, skill_groups.skills AS needed_skills, favorite_counts.count AS likes, projects.created_at
       FROM projects
-      LEFT JOIN locations ON projects.location_id = locations.id
       LEFT JOIN (
         SELECT project_seeking_skills.project_id project_id, array_to_json(array_agg(json_build_object('name', skills.name, 'id', skills.id))) skills
         FROM project_seeking_skills
@@ -264,15 +273,6 @@ class PostgresClient {
     const selectQuery = `
       SELECT id, name
       FROM skills
-    `;
-    const dbResponse = await this.pool.query(selectQuery);
-    return _.get(dbResponse, 'rows');
-  }
-
-  async getAllLocations() {
-    const selectQuery = `
-      SELECT id, name
-      FROM locations
     `;
     const dbResponse = await this.pool.query(selectQuery);
     return _.get(dbResponse, 'rows');

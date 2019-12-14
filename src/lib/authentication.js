@@ -7,10 +7,11 @@ const SALT_ROUNDS = 10;
 
 const authenticationKey = config.get('authenticationKey');
 
-const generateAuthToken = (username, id) => jwt.sign(
+const generateAuthToken = (username, id, initialSetupIsComplete) => jwt.sign(
   {
     username,
     id,
+    initialSetupIsComplete,
   },
   authenticationKey,
   { expiresIn: JWT_TTL },

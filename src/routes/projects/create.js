@@ -6,7 +6,7 @@ const create = async (req, res) => {
     req.body, [
       'name',
       'description',
-      'locationId',
+      'location',
       'inspiredBy',
       'assets',
       'contact',
