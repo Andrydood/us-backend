@@ -2,12 +2,6 @@ const Joi = require('@hapi/joi');
 
 const email = Joi.string().email().max(50);
 
-const shortestString = Joi.string().max(30);
-
-const shortString = Joi.string().max(100);
-
-const mediumString = Joi.string().max(500);
-
 const longString = Joi.string().max(5000);
 
 const projectIdSchema = Joi.string().max(50);
@@ -22,16 +16,16 @@ const createUserSchema = Joi.object({
   email: email.required(),
   username: Joi.string().alphanum().max(20).min(3)
     .required(),
-  password: shortestString.min(3).required(),
+  password: Joi.string().max(30).min(3).required(),
 });
 
 const loginUserSchema = Joi.object({
   email: email.min(3).required(),
-  password: mediumString.min(3).required(),
+  password: Joi.string().max(100).min(3).required(),
 });
 
 const createProjectSchema = Joi.object({
-  name: shortString.min(3).required(),
+  name: Joi.string().max(100).min(3).required(),
   description: longString.min(3).required(),
   skillsNeeded: skillIdsSchema.required(),
   location: locationSchema,
@@ -54,7 +48,7 @@ const sendMessageSchema = Joi.object({
 });
 
 const setupSchema = Joi.object({
-  bio: longString,
+  bio: Joi.string().max(150),
   location: locationSchema,
   skillIds: skillIdsSchema,
 });
