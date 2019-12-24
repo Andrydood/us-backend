@@ -282,13 +282,8 @@ class PostgresClient {
     const selectQuery = `
       SELECT id
       FROM conversations
-      WHERE
-      EXISTS(
-        SELECT id
-        FROM conversations
-        WHERE project_id=$1
-        AND interested_user_id=$2
-     )
+      WHERE project_id=$1
+      AND interested_user_id=$2
     `;
 
     const dbResponse = await this.pool.query(selectQuery, [projectId, userId]);
@@ -318,6 +313,19 @@ class PostgresClient {
     return _.get(dbResponse, 'rows.0');
   }
 
+  async getConversationDetails(conversationId) {
+    const selectQuery = `
+      SELECT u1.username as interested_user, u2.username as project_owner, projects.name as project_name, projects.id as project_id
+      FROM conversations
+      JOIN projects ON conversations.project_id = projects.id
+      JOIN users u1 ON conversations.interested_user_id = u1.id
+      JOIN users u2 ON projects.owner_id = u2.id
+      WHERE conversations.id=$1
+    `;
+
+    const dbResponse = await this.pool.query(selectQuery, [conversationId]);
+    return _.get(dbResponse, 'rows.0');
+  }
 
   updateConversationTime(conversationId) {
     const insertQuery = `
@@ -359,6 +367,7 @@ class PostgresClient {
       JOIN projects ON conversations.project_id = projects.id
       JOIN users ON projects.owner_id = users.id
       WHERE interested_user_id = $1
+      ORDER BY updated_at DESC
     `;
 
     const dbResponse = await this.pool.query(selectQuery, [userId]);
@@ -373,6 +382,7 @@ class PostgresClient {
       JOIN projects ON conversations.project_id = projects.id
       JOIN users ON conversations.interested_user_id = users.id
       WHERE projects.owner_id = $1
+      ORDER BY updated_at DESC
     `;
 
     const dbResponse = await this.pool.query(selectQuery, [userId]);

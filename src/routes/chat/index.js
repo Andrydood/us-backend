@@ -13,7 +13,7 @@ router.use(requireAuthentication);
 router.post('/create', create);
 router.post('/send', send);
 router.get('/conversation/:conversationId', conversation);
-router.get('/my-projects/', myProjects);
-router.get('/other-projects/', otherProjects);
+router.get('/my-projects', myProjects);
+router.get('/other-projects', otherProjects);
 
 module.exports = router;

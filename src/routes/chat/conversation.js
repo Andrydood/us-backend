@@ -1,3 +1,5 @@
+const camelCaseKeys = require('camelcase-keys');
+
 const conversation = async (req, res) => {
   const { conversationId } = req.params;
 
@@ -13,9 +15,14 @@ const conversation = async (req, res) => {
       return res.status(400).send({ message: 'Not authorised to see messages' });
     }
 
-    const conversationContents = await req.postgresClient.getConversation(conversationId);
-
-    return res.status(201).send(conversationContents);
+    const messages = await req.postgresClient.getConversation(conversationId);
+    const conversationDetails = await req.postgresClient.getConversationDetails(conversationId);
+    if (userId === ownerId) {
+      conversationDetails.isOwner = true;
+    } else {
+      conversationDetails.isOwner = false;
+    }
+    return res.status(201).send({ messages, conversationDetails: camelCaseKeys(conversationDetails) });
   } catch (err) {
     req.logger.error({ error: JSON.stringify(err) });
     return res.status(500).send({ message: 'Server error' });
