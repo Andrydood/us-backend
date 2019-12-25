@@ -2,7 +2,7 @@ const { Pool } = require('pg');
 const config = require('config');
 const _ = require('lodash');
 
-const PROJECTS_PER_PAGE = 10;
+const PROJECTS_PER_PAGE = 10000;
 
 class PostgresClient {
   constructor() {
