@@ -163,6 +163,7 @@ create table conversations (
 CREATE TRIGGER trigger_conversations_genid BEFORE INSERT ON conversations FOR EACH ROW EXECUTE PROCEDURE unique_short_id();
 
 create table messages (
+	id INT GENERATED ALWAYS AS IDENTITY,
 	conversation_id TEXT
 		REFERENCES conversations(id)
 		ON DELETE CASCADE
@@ -173,7 +174,8 @@ create table messages (
 		NOT NULL,
 	content TEXT
 		NOT NULL,
-	created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+	created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+	read BOOLEAN DEFAULT false
 );
 
 INSERT INTO skills (name)

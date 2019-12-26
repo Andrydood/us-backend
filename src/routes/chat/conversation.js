@@ -22,7 +22,7 @@ const conversation = async (req, res) => {
     } else {
       conversationDetails.isOwner = false;
     }
-    return res.status(201).send({ messages, conversationDetails: camelCaseKeys(conversationDetails) });
+    return res.status(201).send(camelCaseKeys({ messages, conversationDetails }, { deep: true }));
   } catch (err) {
     req.logger.error({ error: JSON.stringify(err) });
     return res.status(500).send({ message: 'Server error' });

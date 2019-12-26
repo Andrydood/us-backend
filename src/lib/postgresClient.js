@@ -337,18 +337,20 @@ class PostgresClient {
     return this.pool.query(insertQuery, [conversationId]);
   }
 
-  sendMessage(conversationId, senderId, message) {
+  async sendMessage(conversationId, senderId, message) {
     const insertQuery = `
       INSERT INTO messages (conversation_id, sender_id, content)
       VALUES ($1, $2, $3)
+      RETURNING messages.id
     `;
 
-    return this.pool.query(insertQuery, [conversationId, senderId, message]);
+    const dbResponse = await this.pool.query(insertQuery, [conversationId, senderId, message]);
+    return _.get(dbResponse, 'rows.0.id');
   }
 
   async getConversation(conversationId) {
     const selectQuery = `
-      SELECT users.username, content, messages.created_at
+      SELECT users.username, content, messages.created_at, messages.read, messages.id
       FROM messages
       LEFT JOIN users ON users.id = sender_id
       WHERE conversation_id = $1
@@ -362,10 +364,17 @@ class PostgresClient {
 
   async getConversationsByInterestedUser(userId) {
     const selectQuery = `
-      SELECT projects.name, users.username, conversations.id, conversations.updated_at
+      SELECT projects.name, users.username, conversations.id, conversations.updated_at, unread_counts.count as unread
       FROM conversations
       JOIN projects ON conversations.project_id = projects.id
       JOIN users ON projects.owner_id = users.id
+      LEFT JOIN (
+        SELECT conversation_id, count(*) AS count
+        FROM messages
+        WHERE read = false
+        AND sender_id != $1
+        GROUP BY conversation_id
+      )unread_counts ON conversations.id = unread_counts.conversation_id
       WHERE interested_user_id = $1
       ORDER BY updated_at DESC
     `;
@@ -377,10 +386,17 @@ class PostgresClient {
 
   async getConversationsByProjectOwner(userId) {
     const selectQuery = `
-      SELECT projects.name, users.username, conversations.id, conversations.updated_at
+      SELECT projects.name, users.username, conversations.id, conversations.updated_at, unread_counts.count as unread
       FROM conversations
       JOIN projects ON conversations.project_id = projects.id
       JOIN users ON conversations.interested_user_id = users.id
+      LEFT JOIN (
+        SELECT conversation_id, count(*) AS count
+        FROM messages
+        WHERE read = false
+        AND sender_id != $1
+        GROUP BY conversation_id
+      )unread_counts ON conversations.id = unread_counts.conversation_id
       WHERE projects.owner_id = $1
       ORDER BY updated_at DESC
     `;
@@ -388,6 +404,15 @@ class PostgresClient {
     const dbResponse = await this.pool.query(selectQuery, [userId]);
 
     return _.get(dbResponse, 'rows');
+  }
+
+  markMessageAsRead(messageId) {
+    const updateQuery = `
+      UPDATE messages
+      SET read = TRUE
+      WHERE messages.id = $1
+  `;
+    return this.pool.query(updateQuery, [messageId]);
   }
 }
 
