@@ -17,7 +17,7 @@ const generateAuthToken = (username, id, initialSetupIsComplete) => jwt.sign(
   { expiresIn: JWT_TTL },
 );
 
-const verifyAuthToken = (token) => jwt.verify(token, authenticationKey);
+const verifyAuthToken = (token) => (token ? jwt.verify(token, authenticationKey) : false);
 
 const hashPassword = (password) => bcrypt.hash(password, SALT_ROUNDS);
 

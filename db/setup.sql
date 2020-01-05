@@ -179,7 +179,24 @@ create table messages (
 );
 
 INSERT INTO skills (name)
-VALUES  ('Dancing'),
-		('Singing'),
-		('Drawing'),
-		('Writing');
+VALUES
+('music production'),
+('instrumentalist'),
+('vocalist'),
+('lyrics writing'),
+('dancing'),
+('photography'),
+('graphic design'),
+('videography'),
+('illustration'),
+('animation'),
+('digital design'),
+('fashion design'),
+('writing'),
+('manufacturing'),
+('CAD modelling'),
+('electronics'),
+('data science'),
+('web development'),
+('app development'),
+('software development');
