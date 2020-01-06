@@ -40,3 +40,9 @@ For mac users the easiest option is to download the [postgres.app](https://postg
     ```
 4. Go wild!
 
+### Deployment
+
+```
+docker build . -t us-backend
+docker run -p 4000:4000 us-backend
+```
