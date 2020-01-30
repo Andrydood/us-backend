@@ -1,6 +1,8 @@
 # us-backend
 This is the backend for [It's Us!](http://github.com/andrydood/us-frontend)
 
+It is an express API connecting to a postgres DB which allows for user management, post management, and has a websocket/chat function.
+
 ### Getting Started
 In order to get this backend up and running you will need to follow these instructions:
 
