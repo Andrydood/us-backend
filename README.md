@@ -1,5 +1,5 @@
 # us-backend
-This is the backend for [It's Us!](http://itsus.app)
+This is the backend for [It's Us!](http://github.com/andrydood/us-frontend)
 
 ### Getting Started
 In order to get this backend up and running you will need to follow these instructions:
