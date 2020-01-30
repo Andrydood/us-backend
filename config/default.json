@@ -1,0 +1,11 @@
+{
+  //insert info here
+  "authenticationKey": "",
+  "postgres": {
+    "user": "",
+    "host": "",
+    "database": "",
+    "password": "",
+    "port": 5432
+  }
+}
